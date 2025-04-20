@@ -29,10 +29,9 @@ This repository provides a single Docker container that bundles:
 
 Run the container using the image from GitHub Container Registry (GHCR):
 
-    docker run -d \
-      --name meili-mcp \
+    docker run --pull always --rm \
       -p 8777:7700 \
-      -p 8300:3000 \  
+      -p 8300:3000 \
       -e MEILI_MASTER_KEY=masterKey \
       -e DOCUMENT_DIRS="/app/example/spec,/app/example/guide" \
       -e CHECK_RETRIES=30 \
