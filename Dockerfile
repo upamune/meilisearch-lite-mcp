@@ -1,13 +1,12 @@
 FROM getmeili/meilisearch
 
 # Install dependencies for Python and git
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk update && apk add --no-cache \
     python3 \
     python3-pip \
     git \
     curl \
-    jq \
- && rm -rf /var/lib/apt/lists/*
+    jq
 
 WORKDIR /app
 
