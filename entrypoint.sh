@@ -17,4 +17,5 @@ if [ -n "$DOCUMENT_DIRS" ]; then
 fi
 
 # Finally, launch the MCP server
+. /opt/venv/bin/activate
 exec meilisearch-mcp

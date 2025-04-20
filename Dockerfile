@@ -8,11 +8,14 @@ RUN apk update && apk add --no-cache \
     curl \
     jq
 
-WORKDIR /app
+# Clone and install the official Python MCP server in a virtual environment
+RUN git clone https://github.com/meilisearch/meilisearch-mcp.git /tmp/meilisearch-mcp \
+ && python3 -m venv /opt/venv \
+ && . /opt/venv/bin/activate \
+ && pip install --no-cache-dir /tmp/meilisearch-mcp \
+ && rm -rf /tmp/meilisearch-mcp
 
-# Clone and install the official Python MCP server
-RUN git clone https://github.com/meilisearch/meilisearch-mcp.git . \
- && pip3 install --no-cache-dir .
+WORKDIR /app
 
 # Copy entrypoint script
 COPY entrypoint.sh ./
