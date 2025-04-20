@@ -57,36 +57,8 @@ This example shows how a client could potentially launch the Docker container as
 Run the container using the image from GitHub Container Registry (GHCR):
 
     docker run --pull always --rm \
-      -p 8777:7700 \
-      -p 8300:3000 \
       -e DOCUMENT_DIRS="/app/example/spec,/app/example/guide" \
       -e CHECK_RETRIES=30 \
       -v /path/to/your/repo/example/spec:/app/example/spec \
       -v /path/to/your/repo/example/guide:/app/example/guide \
       ghcr.io/upamune/meilisearch-lite-mcp:latest
-
-Access Meilisearch at http://localhost:8777 and the MCP server at http://localhost:8300.
-
-## MCP Client Configuration Example
-
-```json
-{
-  "mcpServers": {
-    "meilisearch-mcp": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-p", "8300:3000",
-        "-e", "DOCUMENT_DIRS=/app/example/spec,/app/example/guide",
-        "-v", "/path/to/your/repo/example/spec:/app/example/spec",
-        "-v", "/path/to/your/repo/example/guide:/app/example/guide",
-        "ghcr.io/upamune/meilisearch-lite-mcp:latest"
-      ]
-    }
-  }
-}
-```
-
-This example shows how a client could potentially launch the Docker container as a subprocess. Replace `/path/to/your/repo/example/spec` and `/path/to/your/repo/example/guide` with the actual paths on your host machine.
