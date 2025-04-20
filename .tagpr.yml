@@ -1,0 +1,37 @@
+# .tagpr.yml
+# Configuration for tagpr
+
+# Example configuration:
+# version_file: "VERSION" # Specify the file containing the version number
+# branch: "main" # Specify the branch to create releases from
+# changelog_file: "CHANGELOG.md" # Specify the changelog file
+# template: | # Customize the release notes template
+#   {{ .Version }}
+
+# For this project, we'll use a simple configuration.
+# Assuming the version is managed elsewhere or not strictly versioned in a file for now.
+# We'll focus on creating tags and releases based on commits.
+
+# You might want to customize this based on how you manage versions and changelogs.
+# For a basic setup, no specific configuration might be needed if using default behavior.
+
+# If you have a version file like VERSION or __version__.py, uncomment and set version_file:
+# version_file: "VERSION"
+
+# If you want to create releases from a specific branch (default is the default branch):
+# branch: "main"
+
+# If you have a changelog file:
+# changelog_file: "CHANGELOG.md"
+
+# If you want to customize the release notes template:
+# template: |
+#   ## {{ .Version }}
+
+#   {{ .Body }}
+
+#   See the changes: {{ .CompareURL }}
+
+# For now, we'll leave it mostly default.
+# tagpr will create a tag and a release on push to the specified branch (default: default branch)
+# when the commit message includes keywords like "feat:", "fix:", "chore:", etc.
