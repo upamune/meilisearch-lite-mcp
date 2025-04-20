@@ -27,7 +27,6 @@ If you are using an MCP client that requires a configuration file (e.g., in JSON
         "run",
         "-i",
         "--rm",
-        "-p", "8300:3000",
         "-e", "DOCUMENT_DIRS",
         "-v", "/path/to/your/repo/example/spec:/app/example/spec",
         "-v", "/path/to/your/repo/example/guide:/app/example/guide",

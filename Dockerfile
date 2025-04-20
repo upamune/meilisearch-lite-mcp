@@ -21,11 +21,11 @@ RUN git clone https://github.com/meilisearch/meilisearch-mcp.git /app/meilisearc
 
 WORKDIR /app
 
+# Set default master key (not sensitive data)
+ENV MEILI_MASTER_KEY=masterKey
+
 # Copy entrypoint script
 COPY entrypoint.sh ./
-
-# Expose MCP (3000) - Meili (7700) is already exposed by base image
-EXPOSE 3000
 
 # Use Tini as PID 1 for proper signal handling & zombie reaping
 ENTRYPOINT ["/sbin/tini", "--"]

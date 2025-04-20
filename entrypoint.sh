@@ -3,6 +3,8 @@ set -e
 
 # Set default master key if not provided
 : ${MEILI_MASTER_KEY:="masterKey"}
+# Export MEILI_MASTER_KEY as an environment variable
+export MEILI_MASTER_KEY
 
 # Start Meilisearch in the background
 echo "Starting Meilisearch server..."
