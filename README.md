@@ -34,11 +34,10 @@ Run the container using the image from GitHub Container Registry (GHCR):
       -p 8777:7700 \      # Host port 8777 → container 7700 (Meilisearch)  
       -p 8300:3000 \      # Host port 8300 → container 3000 (MCP server)  
       -e MEILI_MASTER_KEY=masterKey \
-      -e DOCUMENT_DIRS="/home/user/notes/one,/home/user/notes/two,/home/user/notes/three" \
+      -e DOCUMENT_DIRS="/app/example/spec,/app/example/guide" \
       -e CHECK_RETRIES=30 \
-      -v /home/user/notes/one:/docs/one \
-      -v /home/user/notes/two:/docs/two \
-      -v /home/user/notes/three:/docs/three \
+      -v /path/to/your/repo/example/spec:/app/example/spec \
+      -v /path/to/your/repo/example/guide:/app/example/guide \
       ghcr.io/upamune/meilisearch-lite-mcp:latest
 
 Access Meilisearch at http://localhost:8777 and the MCP server at http://localhost:8300.
