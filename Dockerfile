@@ -1,31 +1,25 @@
-FROM python:3.10-alpine
+FROM getmeili/meilisearch
 
-# Install runtime dependencies (including libgcc for Meilisearch) and Tini for PID 1 duties
-RUN apk add --no-cache \
-      bash \
-      curl \
-      git \
-      libgcc \
-      tini
+# Install dependencies for Python and git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    git \
+    curl \
+    jq \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Clone and install the official Python MCP server (requires Python ≥3.10)
+# Clone and install the official Python MCP server
 RUN git clone https://github.com/meilisearch/meilisearch-mcp.git . \
- && pip install --no-cache-dir .
-
-# Download Meilisearch binary from GitHub (v1.14.0 example)
-ENV MEILI_VERSION=1.14.0
-RUN curl -L \
-      https://github.com/meilisearch/meilisearch/releases/download/v${MEILI_VERSION}/meilisearch-linux-amd64 \
-      -o /usr/local/bin/meilisearch \
- && chmod +x /usr/local/bin/meilisearch
+ && pip3 install --no-cache-dir .
 
 # Copy entrypoint script
 COPY entrypoint.sh ./
 
-# Expose Meili (7700) and MCP (3000)
-EXPOSE 7700 3000
+# Expose MCP (3000) - Meili (7700) is already exposed by base image
+EXPOSE 3000
 
 # Use Tini as PID 1 for proper signal handling & zombie reaping
 ENTRYPOINT ["/sbin/tini", "--"]
