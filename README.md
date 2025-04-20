@@ -27,11 +27,7 @@ This repository provides a single Docker container that bundles:
 
 ## Usage
 
-Build the image by running:
-
-    docker build -t meilisearch-mcp:local .
-
-Run the container (example mapping to avoid port conflicts):
+Run the container using the image from GitHub Container Registry (GHCR):
 
     docker run -d \
       --name meili-mcp \
@@ -43,6 +39,6 @@ Run the container (example mapping to avoid port conflicts):
       -v /home/user/notes/one:/docs/one \
       -v /home/user/notes/two:/docs/two \
       -v /home/user/notes/three:/docs/three \
-      meilisearch-mcp:local
+      ghcr.io/upamune/meilisearch-lite-mcp:latest
 
 Access Meilisearch at http://localhost:8777 and the MCP server at http://localhost:8300.
