@@ -31,8 +31,8 @@ Run the container using the image from GitHub Container Registry (GHCR):
 
     docker run -d \
       --name meili-mcp \
-      -p 8777:7700 \      # Host port 8777 → container 7700 (Meilisearch)  
-      -p 8300:3000 \      # Host port 8300 → container 3000 (MCP server)  
+      -p 8777:7700 \
+      -p 8300:3000 \  
       -e MEILI_MASTER_KEY=masterKey \
       -e DOCUMENT_DIRS="/app/example/spec,/app/example/guide" \
       -e CHECK_RETRIES=30 \
