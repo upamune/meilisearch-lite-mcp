@@ -10,12 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker image
       run: |
-        IMAGE_NAME=meilisearch-mcp
+        IMAGE_NAME=ghcr.io/${{ github.repository }}
         IMAGE_TAG=${GITHUB_REF#refs/tags/}
         if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
           docker build . --file Dockerfile --tag $IMAGE_NAME:latest
+          echo "Pushing $IMAGE_NAME:latest"
+          docker push $IMAGE_NAME:latest
         elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
           docker build . --file Dockerfile --tag $IMAGE_NAME:$IMAGE_TAG
+          echo "Pushing $IMAGE_NAME:$IMAGE_TAG"
+          docker push $IMAGE_NAME:$IMAGE_TAG
         fi
