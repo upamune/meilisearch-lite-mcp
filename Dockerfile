@@ -2,6 +2,7 @@ FROM getmeili/meilisearch:v1.14.0
 
 # Install dependencies for Python and git
 RUN apk update && apk add --no-cache \
+    bash \
     python3 \
     py3-pip \
     git \
