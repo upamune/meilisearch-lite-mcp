@@ -3,7 +3,7 @@ FROM getmeili/meilisearch
 # Install dependencies for Python and git
 RUN apk update && apk add --no-cache \
     python3 \
-    python3-pip \
+    py3-pip \
     git \
     curl \
     jq
