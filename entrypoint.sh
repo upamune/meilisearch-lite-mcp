@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Set default master key if not provided
+: ${MEILI_MASTER_KEY:="masterKey"}
+
 # Start Meilisearch in the background
 echo "Starting Meilisearch server..."
 /bin/meilisearch --master-key="$MEILI_MASTER_KEY" &
