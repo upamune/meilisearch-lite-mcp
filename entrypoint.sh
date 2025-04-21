@@ -35,7 +35,7 @@ fi
 if [ -n "$DOCUMENT_DIRS" ]; then
   IFS=',' read -ra DIRS <<< "$DOCUMENT_DIRS"
   for DIR in "${DIRS[@]}"; do
-    echo "Indexing Markdown files in: $DIR"
+    echo "Indexing Markdown files in: $DIR" >&2
     find "$DIR" -type f -name '*.md' -print0 | while IFS= read -r -d '' file; do
       id=$(basename "$file" .md)
       content=$(jq -Rs . < "$file")
