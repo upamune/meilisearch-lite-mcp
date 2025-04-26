@@ -3,6 +3,7 @@ package splitter
 import (
 	"strings"
 
+	"github.com/ikawaha/kagome-dict/uni"
 	"github.com/ikawaha/kagome/v2/tokenizer"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/yuin/goldmark"
@@ -20,9 +21,12 @@ type Chunk struct {
 
 // SplitMarkdown returns code-block単独チャンク + 日本語文チャンク化
 func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
-	enc, _ := tiktoken.GetEncoding("cl100k_base")
-	countTok := enc.CountTokens
-	jaTok := tokenizer.New()
+	enc, err := tiktoken.GetEncoding(tiktoken.MODEL_CL100K_BASE)
+	if err != nil {
+		return nil, err
+	}
+	countTok := func(s string) int { return len(enc.Encode(s, nil, nil)) }
+
 	var chunks []Chunk
 
 	root := goldmark.DefaultParser().Parse(text.NewReader([]byte(md)))
@@ -45,23 +49,34 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 		cur.Reset()
 	}
 
-	ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+	if err := ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		switch v := n.(type) {
 		case *ast.Heading:
 			if entering {
-				seg := v.Text(md)
-				headings = append(headings[:v.Level-1], string(seg))
+				seg := v.Lines()
+				if seg.Len() > 0 {
+					headings = append(headings[:v.Level-1], string(v.Text([]byte(md))))
+				}
 			}
 		case *ast.FencedCodeBlock:
 			if entering {
 				flushText()
-				seg := v.Text(md)
+				// extract code block text and segments
+				seg := v.Text([]byte(md))
+				lines := v.Lines()
+				startIdx, endIdx := 0, 0
+				if lines.Len() > 0 {
+					first := lines.At(0)
+					last := lines.At(lines.Len() - 1)
+					startIdx = first.Start
+					endIdx = last.Stop
+				}
 				chunks = append(chunks, Chunk{
 					Text:     "```" + string(seg) + "```",
 					Type:     "code",
 					Headings: append([]string(nil), headings...),
-					StartIdx: v.Segment.Start,
-					EndIdx:   v.Segment.Stop,
+					StartIdx: startIdx,
+					EndIdx:   endIdx,
 				})
 			}
 			return ast.WalkSkipChildren, nil
@@ -69,7 +84,11 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 			if entering && v.Parent().Kind() != ast.KindFencedCodeBlock {
 				seg := v.Segment
 				sub := md[seg.Start:seg.Stop]
-				sents := jaTok.SentenceSplitter().Split(sub)
+				// split text into sentences
+				sents, err := splitSentences(sub)
+				if err != nil {
+					return ast.WalkSkipChildren, err
+				}
 				for _, s := range sents {
 					if countTok(cur.String()+s) > chunkTok {
 						flushText()
@@ -80,7 +99,41 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 			}
 		}
 		return ast.WalkContinue, nil
-	})
+	}); err != nil {
+		return nil, err
+	}
+
 	flushText()
 	return chunks, nil
+}
+
+var jaTokenizer *tokenizer.Tokenizer
+
+func init() {
+	var err error
+	jaTokenizer, err = tokenizer.New(uni.Dict())
+	if err != nil {
+		panic(err)
+	}
+}
+
+// splitSentences splits Japanese text into sentences using Kagome.
+func splitSentences(s string) ([]string, error) {
+	var result []string
+	var buf strings.Builder
+	// use morphological segmentation
+	morphs := jaTokenizer.Wakati(s)
+	for _, surface := range morphs {
+		if _, err := buf.WriteString(surface); err != nil {
+			return nil, err
+		}
+		if surface == "。" || surface == "！" || surface == "？" {
+			result = append(result, buf.String())
+			buf.Reset()
+		}
+	}
+	if buf.Len() > 0 {
+		result = append(result, buf.String())
+	}
+	return result, nil
 }
