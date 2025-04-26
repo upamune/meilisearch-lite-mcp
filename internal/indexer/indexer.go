@@ -19,11 +19,13 @@ type BuildIndexCmd struct {
 	APIKey           string   `env:"EMBEDDERS_API_KEY,required" help:"Embedders API key"`
 	DocumentTemplate string   `env:"EMBEDDERS_DOCUMENT_TEMPLATE,required" help:"Embedders document template"`
 	Concurrency      int      `env:"CONCURRENCY" default:"5" help:"Number of parallel workers for indexing"`
+	PathPrefix       string   `env:"DOCUMENT_PATH_PREFIX" default:"" help:"Prefix to add to document paths"`
 }
 
 // Run executes the indexing command.
 func (cmd *BuildIndexCmd) Run(ctx context.Context) error {
 	client := meilisearch.New(cmd.HTTPAddr, meilisearch.WithAPIKey(cmd.MasterKey))
+	prefix := cmd.PathPrefix
 	for _, dir := range cmd.Dir {
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -33,7 +35,12 @@ func (cmd *BuildIndexCmd) Run(ctx context.Context) error {
 				return nil
 			}
 			if filepath.Ext(path) == ".md" {
-				fmt.Printf("Indexing %s\n", path)
+				// apply prefix if set
+				fullPath := path
+				if prefix != "" {
+					fullPath = filepath.Join(prefix, path)
+				}
+				fmt.Printf("Indexing %s\n", fullPath)
 				// TODO: read file, generate embedding, index to Meilisearch
 			}
 			return nil
