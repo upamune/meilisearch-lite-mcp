@@ -11,6 +11,16 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
+var jaTokenizer *tokenizer.Tokenizer
+
+func init() {
+	var err error
+	jaTokenizer, err = tokenizer.New(uni.Dict())
+	if err != nil {
+		panic(err)
+	}
+}
+
 type Chunk struct {
 	Text     string
 	StartIdx int
@@ -105,16 +115,6 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 
 	flushText()
 	return chunks, nil
-}
-
-var jaTokenizer *tokenizer.Tokenizer
-
-func init() {
-	var err error
-	jaTokenizer, err = tokenizer.New(uni.Dict())
-	if err != nil {
-		panic(err)
-	}
 }
 
 // splitSentences splits Japanese text into sentences using Kagome.
