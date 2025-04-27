@@ -35,37 +35,39 @@ type IndexCmd struct {
 	Concurrency  int      `default:"30" help:"Parallel workers."`
 }
 
-// Implement indexer.Config interface for IndexCmd
-func (c *IndexCmd) GetDirs() []string    { return c.Dirs }
-func (c *IndexCmd) GetChunkSize() int    { return c.ChunkSize }
-func (c *IndexCmd) GetChunkOverlap() int { return c.ChunkOverlap }
-func (c *IndexCmd) GetConcurrency() int  { return c.Concurrency }
+func (c *IndexCmd) Run(ctx context.Context, cli *CLI) error {
+	return indexer.Run(ctx, indexer.RunParam{
+		HttpAddr:     cli.HttpAddr,
+		ApiKey:       cli.ApiKey,
+		ChunkSize:    c.ChunkSize,
+		ChunkOverlap: c.ChunkOverlap,
+		Concurrency:  c.Concurrency,
+		Dirs:         c.Dirs,
+	})
+}
 
 type ServeCmd struct {
-	// HttpAddr and SemanticRatio are now global flags in CLI
 	PathPrefix string `env:"SEARCH_PATH_PREFIX" default:"" help:"Prefix for search paths (optional)."`
 }
 
-// SearchCmd defines arguments for the search command
+func (c *ServeCmd) Run(ctx context.Context, cli *CLI) error {
+	mcpserver.Run(ctx, mcpserver.RunParam{
+		HttpAddr:      cli.HttpAddr,
+		ApiKey:        cli.ApiKey,
+		SemanticRatio: cli.SemanticRatio,
+		PathPrefix:    c.PathPrefix,
+	})
+
+	return nil
+}
+
 type SearchCmd struct {
 	Query       string `arg:"" required:"" help:"Search query."`
 	Interactive bool   `short:"i" help:"Enable interactive mode."`
 }
 
-// serveAdapter wraps main.ServeCmd to satisfy mcpserver.ServeCmd interface
-// It now accesses global flags via the main CLI struct.
-type serveAdapter struct {
-	cli *CLI // Keep a reference to the main CLI struct for global flags
-}
-
-func (s serveAdapter) PathPrefix() string     { return s.cli.Serve.PathPrefix }
-func (s serveAdapter) HttpAddr() string       { return s.cli.HttpAddr }
-func (s serveAdapter) SemanticRatio() float64 { return s.cli.SemanticRatio }
-
-func (c *SearchCmd) Run(cli *CLI) error {
-	ctx := context.Background()
-	// NewClient reads env vars set in main()
-	client := meilisearchutil.NewClient()
+func (c *SearchCmd) Run(ctx context.Context, cli *CLI) error {
+	client := meilisearchutil.NewClient(cli.HttpAddr, cli.ApiKey)
 
 	// Perform initial search if a query is provided via flag
 	if c.Query != "" {
@@ -151,8 +153,13 @@ func performSearch(ctx context.Context, client meilisearch.ServiceReader, query 
 	for i, hit := range resp.Hits {
 		fmt.Printf(" %d. Score: %.4f\n", i+1, hit.Score)
 		fmt.Printf("    Path: %s\n", hit.Path) // Use hit.Path directly
+		fmt.Printf("    ID: %s\n", hit.ID)
+		fmt.Printf("    Kind: %s\n", hit.Kind)
+		fmt.Printf("    StartLine: %d\n", hit.StartLine)
+		fmt.Printf("    EndLine: %d\n", hit.EndLine)
+
 		// Optionally truncate content for brevity
-		content := hit.Text // Use hit.Text directly
+		content := hit.Text
 		maxLen := 150
 		if len(content) > maxLen {
 			content = content[:maxLen] + "..."
@@ -173,33 +180,21 @@ func main() {
 		kong.Description("Meilisearch Hybrid Search MCP & CLI"),
 		kong.UsageOnError(),
 		kong.Bind(ctx),
-		// Bind the CLI struct itself to the context so subcommands can access global flags if needed
-		// (though serveAdapter accesses it directly via closure here)
-		kong.BindTo(&cli, (*CLI)(nil)),
 	)
-
-	// Set environment variables for Meilisearch client initialization
-	// Why: Centralizes config access, keeps NewClient simple.
-	os.Setenv("MEILI_HTTP_ADDR", cli.HttpAddr)
-	os.Setenv("MEILI_MASTER_KEY", cli.ApiKey)
-	// Note: SemanticRatio is passed directly to search function
 
 	switch k.Command() {
 	case "build <dirs>":
-		// indexer.Run does not return an error
-		indexer.Run(ctx, &cli.Build)
-		log.Println("Indexing completed successfully.") // Provide feedback
+		err := cli.Build.Run(ctx, &cli)
+		k.FatalIfErrorf(err)
+		log.Println("Indexing completed successfully.")
 	case "serve":
-		// mcpserver.Run does not return an error
-		mcpserver.Run(ctx, serveAdapter{cli: &cli})
-		log.Println("MCP server finished.") // Provide feedback
+		err := cli.Serve.Run(ctx, &cli)
+		k.FatalIfErrorf(err)
+		log.Println("MCP server finished.")
 	case "search <query>":
-		if err := cli.Search.Run(&cli); err != nil {
-			log.Fatal(err)
-		}
-
+		err := cli.Search.Run(ctx, &cli)
+		k.FatalIfErrorf(err)
 	default:
-		// Kong should handle unknown commands with UsageOnError
 		k.FatalIfErrorf(fmt.Errorf("unknown command %s", k.Command()))
 	}
 }

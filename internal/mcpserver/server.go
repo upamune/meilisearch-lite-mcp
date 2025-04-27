@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -39,6 +38,7 @@ type SearchResponse struct {
 
 type ServeCmd interface {
 	HttpAddr() string
+	ApiKey() string
 	SemanticRatio() float64
 	PathPrefix() string
 }
@@ -49,8 +49,15 @@ const (
 	semanticRatioParamName = "semantic_ratio"
 )
 
-func Run(ctx context.Context, cfg ServeCmd) {
-	client := meilisearchutil.NewClient()
+type RunParam struct {
+	HttpAddr      string
+	ApiKey        string
+	SemanticRatio float64
+	PathPrefix    string
+}
+
+func Run(ctx context.Context, param RunParam) error {
+	client := meilisearchutil.NewClient(param.HttpAddr, param.ApiKey)
 	defer client.Close()
 
 	srv := server.NewMCPServer("meilisearch-hybrid-mcp", "v0.1.0")
@@ -86,13 +93,14 @@ func Run(ctx context.Context, cfg ServeCmd) {
 		),
 	)
 
-	handler := newSearchDocumentHandler(client.ServiceReader(), cfg.PathPrefix())
+	handler := newSearchDocumentHandler(client.ServiceReader(), param.PathPrefix)
 	srv.AddTool(searchDocumentTool, handler)
 
 	if err := server.ServeStdio(srv); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to serve MCP server: %v\n", err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }
 
 func newSearchDocumentHandler(client meilisearch.ServiceReader, pathPrefix string) server.ToolHandlerFunc {

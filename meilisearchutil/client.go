@@ -3,7 +3,6 @@ package meilisearchutil
 import (
 	"context"
 	"encoding/json"
-	"os"
 	"time"
 
 	"github.com/meilisearch/meilisearch-go"
@@ -16,9 +15,9 @@ const (
 	DefaultEmbedderName = "default"
 )
 
-func NewClient() meilisearch.ServiceManager {
-	return meilisearch.New(os.Getenv("MEILI_HTTP_ADDR"),
-		meilisearch.WithAPIKey(os.Getenv("MEILI_MASTER_KEY")))
+func NewClient(meiliHttpAddr, meiliMasterKey string) meilisearch.ServiceManager {
+	return meilisearch.New(meiliHttpAddr,
+		meilisearch.WithAPIKey(meiliMasterKey))
 }
 
 type DocumentResponse struct {
