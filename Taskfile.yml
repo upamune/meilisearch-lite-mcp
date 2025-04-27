@@ -20,5 +20,3 @@ tasks:
 
   format:
     cmd: goimports -w -local github.com/upamune/meilisearch-hybrid-mcp .
-
-
