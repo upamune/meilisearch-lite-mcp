@@ -1,0 +1,89 @@
+{
+  "checksums": [
+    {
+      "id": "github_release/github.com/go-task/task/v3.43.2/task_darwin_amd64.tar.gz",
+      "checksum": "CBDB9EDBD64D6EBFB9B27A01303E7FF988CD592F25CF08317CBF3C96A186CCA1",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/go-task/task/v3.43.2/task_darwin_arm64.tar.gz",
+      "checksum": "78E25158F28144E2C64B5F0CB4E1643C5F98E4E56C35E5070038F67CF8B3642B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/go-task/task/v3.43.2/task_linux_amd64.tar.gz",
+      "checksum": "084E493DBA4892572F235BF418CE8CFAED698B1F6F828DA42C51C209930635DB",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/go-task/task/v3.43.2/task_linux_arm64.tar.gz",
+      "checksum": "D8E14C97A114E381C5FD029486B503C843CA110DFF83CC1B2EF3DA842878791E",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/mgechev/revive/v1.9.0/revive_darwin_amd64.tar.gz",
+      "checksum": "A8BBB6E54C0A022A07EAC364F8BAC9CDCF82CB4A5492DC08ADDD689EE677D8CE",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/mgechev/revive/v1.9.0/revive_darwin_arm64.tar.gz",
+      "checksum": "2E1D6848E428D6ECC5F5138A2BABE12960B8501F3CEF33B2A46AE4A8D6130860",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/mgechev/revive/v1.9.0/revive_linux_amd64.tar.gz",
+      "checksum": "19BE872855D2EDC69CEC335AC12F226947C3788220831239641069E47BE003E1",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/mgechev/revive/v1.9.0/revive_linux_arm64.tar.gz",
+      "checksum": "365068587472142CF2E0E09CB7A49B73C2280B31A83289A466E77858D34A0185",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/download.docker.com/linux/static/stable/aarch64/docker-28.1.1.tgz",
+      "checksum": "836BBAEA204251922EC4DC79DBE81E323CCEDAA726EFC01F62683F547D721871",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/download.docker.com/linux/static/stable/x86_64/docker-28.1.1.tgz",
+      "checksum": "FF34BD799B5E4C3738A3B1A383CF4067C672ADD48C7203FCD003FCB0AACEBC94",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/download.docker.com/mac/static/stable/aarch64/docker-28.1.1.tgz",
+      "checksum": "402649EB552CA96C99BAA8CF48AF2EBBD17EAA62002BF0E9725596E1E856ACFC",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/download.docker.com/mac/static/stable/x86_64/docker-28.1.1.tgz",
+      "checksum": "95BBC24A6427BDC250D5D9F8D0DCF8F861DC3B4F305E0F6B2A62D820B4035D5B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.24.2.darwin-amd64.tar.gz",
+      "checksum": "238D9C065D09FF6AF229D2E3B8B5E85E688318D69F4006FB85A96E41C216EA83",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.24.2.darwin-arm64.tar.gz",
+      "checksum": "B70F8B3C5B4CCB0AD4FFA5EE91CD38075DF20FDBD953A1DAEDD47F50FBCFF47A",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.24.2.linux-amd64.tar.gz",
+      "checksum": "68097BD680839CBC9D464A0EDCE4F7C333975E27A90246890E9F1078C7E702AD",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.24.2.linux-arm64.tar.gz",
+      "checksum": "756274EA4B68FA5535EB9FE2559889287D725A8DA63C6AAE4D5F23778C229F4B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.353.0/registry.yaml",
+      "checksum": "F0FBA600DB5DE8DFA9148ACD68D45836CCF91E3ECF303B05395E39EB5BBCB2E64CA8B7C6F77102E942C5642010D0CE6F7ECC9E476E696577185C73F361A233D3",
+      "algorithm": "sha512"
+    }
+  ]
+}

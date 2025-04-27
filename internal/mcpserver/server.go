@@ -10,6 +10,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/meilisearch/meilisearch-go"
+
 	"github.com/upamune/meilisearch-hybrid-mcp/meilisearchutil"
 )
 

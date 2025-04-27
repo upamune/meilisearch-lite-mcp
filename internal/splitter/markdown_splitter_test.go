@@ -23,19 +23,19 @@ func TestSplitMarkdown(t *testing.T) {
 	// If initialization fails, these tests might panic or fail. Consider error handling if needed.
 
 	tests := []struct {
-		name        string
-		input       string
-		maxTokens   int
-		wantChunks  []Chunk
-		wantErr     bool
+		name       string
+		input      string
+		maxTokens  int
+		wantChunks []Chunk
+		wantErr    bool
 	}{
 		{
-			name: "Simple paragraph",
-			input: `This is a simple paragraph. It should form a single chunk.`,
+			name:      "Simple paragraph",
+			input:     `This is a simple paragraph. It should form a single chunk.`,
 			maxTokens: 50,
 			wantChunks: []Chunk{
 				{
-					Text:      "This is a simple paragraph. It should form a single chunk.",
+					Text:     "This is a simple paragraph. It should form a single chunk.",
 					StartIdx: 0,
 					EndIdx:   58, // Length of sanitized text
 					Type:     "text",
@@ -53,7 +53,7 @@ This is the first paragraph under Header 1.`,
 			wantChunks: []Chunk{
 				// Header itself doesn't become a chunk, it updates context
 				{
-					Text:      "This is the first paragraph under Header 1.",
+					Text:     "This is the first paragraph under Header 1.",
 					StartIdx: 12, // Index after "# Header 1\n\n"
 					EndIdx:   55, // StartIdx + len(text) (exclusive)
 					Type:     "text",
@@ -63,12 +63,12 @@ This is the first paragraph under Header 1.`,
 			wantErr: false,
 		},
 		{
-			name: "Code block",
-			input: "```go\npackage main\n\nfunc main() {\n\tprintln(\"hello\")\n}\n```",
+			name:      "Code block",
+			input:     "```go\npackage main\n\nfunc main() {\n\tprintln(\"hello\")\n}\n```",
 			maxTokens: 100,
 			wantChunks: []Chunk{
 				{
-					Text:      "```go\npackage main\n\nfunc main() {\n\tprintln(\"hello\")\n}\n```",
+					Text:     "```go\npackage main\n\nfunc main() {\n\tprintln(\"hello\")\n}\n```",
 					StartIdx: 6,  // Index of 'p' in package
 					EndIdx:   54, // Index after closing brace '}' + newline
 					Type:     "code",
@@ -78,8 +78,8 @@ This is the first paragraph under Header 1.`,
 			wantErr: false,
 		},
 		{
-			name: "Chunking due to maxTokens",
-			input: `This is a relatively long sentence that will likely exceed the maximum token limit set for this test case, forcing it to be split into multiple chunks.`,
+			name:      "Chunking due to maxTokens",
+			input:     `This is a relatively long sentence that will likely exceed the maximum token limit set for this test case, forcing it to be split into multiple chunks.`,
 			maxTokens: 10, // Low limit to force chunking
 			wantChunks: []Chunk{
 				// Expect the entire sentence as one chunk, as splitting respects sentence boundaries.
@@ -102,15 +102,15 @@ This is the first paragraph under Header 1.`,
 			wantChunks: []Chunk{
 				// Header itself doesn't become a chunk
 				{
-					Text:      "これは日本語の段落です。\n複数行にわたることもあります。",
-					StartIdx: 28,   // Index after "# 日本語のヘッダー\n\n"
-					EndIdx:   110,  // StartIdx + len(text) (exclusive)
+					Text:     "これは日本語の段落です。\n複数行にわたることもあります。",
+					StartIdx: 28,  // Index after "# 日本語のヘッダー\n\n"
+					EndIdx:   110, // StartIdx + len(text) (exclusive)
 					Type:     "text",
 					Headings: []string{"日本語のヘッダー"},
 				},
 				{
-					Text:      "```text\nこれはコードブロックです。\n```",
-					StartIdx: 120,  // Index of 'こ' in これは
+					Text:     "```text\nこれはコードブロックです。\n```",
+					StartIdx: 120, // Index of 'こ' in これは
 					EndIdx:   160, // Index after '。' + newline
 					Type:     "code",
 					Headings: []string{"日本語のヘッダー"}, // Assuming heading persists
@@ -119,8 +119,8 @@ This is the first paragraph under Header 1.`,
 			wantErr: false,
 		},
 		{
-			name: "Japanese text exceeding maxTokens",
-			input: `これは非常に長い日本語の文章であり、設定された最大トークン数を超過するため、複数のチャンクに分割されることが期待されます。分割はトークナイザの挙動に依存します。`,
+			name:      "Japanese text exceeding maxTokens",
+			input:     `これは非常に長い日本語の文章であり、設定された最大トークン数を超過するため、複数のチャンクに分割されることが期待されます。分割はトークナイザの挙動に依存します。`,
 			maxTokens: 10, // Low limit to force chunking
 			wantChunks: []Chunk{
 				// Expect split based on sentence boundaries identified by the tokenizer.
@@ -130,11 +130,11 @@ This is the first paragraph under Header 1.`,
 			wantErr: false,
 		},
 		{
-			name: "Empty input",
-			input: ``, // Empty string
-			maxTokens: 50,
+			name:       "Empty input",
+			input:      ``, // Empty string
+			maxTokens:  50,
 			wantChunks: nil,
-			wantErr: false,
+			wantErr:    false,
 		},
 	}
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/meilisearch/meilisearch-go"
+
 	"github.com/upamune/meilisearch-hybrid-mcp/internal/indexer"
 	"github.com/upamune/meilisearch-hybrid-mcp/internal/mcpserver"
 	"github.com/upamune/meilisearch-hybrid-mcp/meilisearchutil"

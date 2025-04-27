@@ -11,6 +11,7 @@ import (
 
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/sourcegraph/conc/pool"
+
 	"github.com/upamune/meilisearch-hybrid-mcp/internal/splitter"
 	"github.com/upamune/meilisearch-hybrid-mcp/meilisearchutil"
 )

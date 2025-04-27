@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  build:
+    cmd: go build -o dist/mcp ./cmd/mcp 
+
+  build-image:
+    cmd: docker build -t meilisearch-hybrid-mcp .
+
+  test:
+    cmd: go test -v -count=1 -race ./...  
+    
+  lint:
+    cmd: revive -config revive.toml -formatter friendly ./...
+
+  format:
+    cmd: goimports -w -local github.com/upamune/meilisearch-hybrid-mcp .
+
+
