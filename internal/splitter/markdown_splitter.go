@@ -1,7 +1,6 @@
 package splitter
 
 import (
-	"log"
 	"strings"
 
 	"github.com/ikawaha/kagome-dict/uni"
@@ -55,7 +54,6 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 		chunkText := cur.String()
 		// Calculate final EndIdx based on StartIdx and final chunk length
 		finalEndIdx := curStart + len(chunkText) // Exclusive index
-		log.Printf("flushText called. Current Headings: %v, curStart: %d, calculated finalEndIdx: %d, curTokens: %d", headings, curStart, finalEndIdx, curTokens)
 
 		// Create a copy of headings to store with the chunk
 		var chunkHeadings []string
@@ -64,8 +62,6 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 			copy(chunkHeadings, headings)
 		}
 		// else chunkHeadings remains nil
-
-		log.Printf("  >> Appending Chunk: Text: \"%.30s...\", StartIdx: %d, EndIdx: %d, Headings: %v", chunkText, curStart, finalEndIdx, chunkHeadings) // Log the copy
 
 		chunks = append(chunks, Chunk{
 			Text:     chunkText,
@@ -88,23 +84,18 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 				flushText() // Ensure pending text is flushed before processing heading
 				level := v.Level
 				headingText := string(v.Text([]byte(md)))
-				log.Printf("  Entering Heading L%d: '%s'. Current headings: %v", level, headingText, headings)
 				// Ensure headings slice is long enough or resize
 				if level > len(headings) {
 					newHeadings := make([]string, level)
 					copy(newHeadings, headings)
 					headings = newHeadings
-					log.Printf("    Resized headings slice to length %d", level)
 				} else {
 					// Truncate deeper levels when a shallower heading is encountered
 					headings = headings[:level]
-					log.Printf("    Truncated headings slice to length %d", level)
 				}
 				// Set heading at the correct level
 				headings[level-1] = headingText
-				log.Printf("    Updated headings: %v", headings)
 			} else {
-				log.Printf("  Exiting Heading L%d. Headings remain: %v", v.Level, headings)
 				// No action needed on exiting heading, state persists
 			}
 			return ast.WalkContinue, nil // Continue walking children (though headings usually don't have complex children affecting text flow here)
@@ -123,7 +114,7 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 					firstLine := v.Lines().At(0)
 					lastLine := v.Lines().At(v.Lines().Len() - 1)
 					startIdx = firstLine.Start // Start index of the first line's content
-					endIdx = lastLine.Stop    // End index of the last line's content (exclusive)
+					endIdx = lastLine.Stop     // End index of the last line's content (exclusive)
 
 					for i := 0; i < v.Lines().Len(); i++ {
 						line := v.Lines().At(i)
@@ -138,8 +129,6 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 					// Maybe use v.Segment.Start/Stop? For now, -1 indicates content-based indexing failed.
 				}
 				blockText.WriteString("```")
-
-				log.Printf("  Code Block Found: StartIdx: %d, EndIdx: %d", startIdx, endIdx)
 
 				// Create a copy of headings for the code chunk
 				var codeChunkHeadings []string
@@ -188,11 +177,10 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 						if rawSentenceIndex != -1 {
 							currentOffsetInNode += rawSentenceIndex + len(sentence)
 						} else {
-                             // This shouldn't happen if sentence came from nodeText, log warning
-							log.Printf("Warning: Could not find raw sentence '%s' in nodeText remnant '%s'", sentence, nodeText[currentOffsetInNode:])
+							// This shouldn't happen if sentence came from nodeText, log warning
 							// Best guess recovery: advance by length of sanitized sentence? Or original sentence?
 							currentOffsetInNode += len(sentence) // Advance by original sentence len as fallback
-                        }
+						}
 						continue
 					}
 
@@ -201,53 +189,44 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 					// Find the start of the *raw* sentence in the *original* nodeText[currentOffsetInNode:]
 					relStartInRemnant := strings.Index(nodeText[currentOffsetInNode:], sentence)
 					if relStartInRemnant == -1 {
-						log.Printf("Warning: Could not find raw sentence substring for index. Offset: %d, NodeText: '%s', Sentence: '%s'", currentOffsetInNode, nodeText, sentence)
 						// Best guess recovery: advance offset and skip sentence
 						currentOffsetInNode += len(sentence)
 						continue
 					}
-                     // Absolute start index in the full markdown string
+					// Absolute start index in the full markdown string
 					absStart := v.Segment.Start + currentOffsetInNode + relStartInRemnant
-                    // Absolute end index = start + length of the *raw* sentence
+					// Absolute end index = start + length of the *raw* sentence
 					absEnd := absStart + len(sentence)
-
-					log.Printf("  Processing Sentence: '%.30s...', absStart: %d, absEnd: %d, tokens: %d, curTokens: %d, maxTokens: %d", sanitizedSentence, absStart, absEnd, tokenCount, curTokens, chunkTok)
 
 					// --- Token Limit Check ---
 					// Rough check: If adding this sentence exceeds limit, flush first.
 					// TODO: A more precise check would include separator tokens.
 					if cur.Len() > 0 && curTokens+tokenCount >= chunkTok {
-						log.Printf("    Token limit would be exceeded (Sentence Tokens: %d). Flushing current buffer.", tokenCount)
 						flushText() // Resets prevAbsEnd
 					}
 
 					// --- Buffer Management ---
 					if cur.Len() == 0 {
-						log.Printf("    Buffer empty. Setting curStart = %d", absStart)
 						curStart = absStart
 						prevAbsEnd = -1 // Ensure prevAbsEnd is reset correctly when starting fresh buffer
 					}
 
 					// --- Append Separator (if needed) ---
 					if cur.Len() > 0 { // Only add separator if buffer isn't empty
-                        if prevAbsEnd != -1 && absStart > prevAbsEnd {
-                            // Ensure indices are within the bounds of the original markdown string 'md'
-                            if prevAbsEnd >= 0 && absStart <= len(md) {
-                                separator := md[prevAbsEnd:absStart] // Capture original separator
-                                cur.WriteString(separator)
-                                // Optional: Add separator tokens if significant: curTokens += countTok(separator)
-								log.Printf("    Appended separator: '%s'", separator)
-                            } else {
-                                log.Printf("Warning: Invalid indices for separator slicing. prevAbsEnd: %d, absStart: %d, mdLen: %d. Appending fallback space.", prevAbsEnd, absStart, len(md))
-                                cur.WriteString(" ") // Fallback separator
-                            }
+						if prevAbsEnd != -1 && absStart > prevAbsEnd {
+							// Ensure indices are within the bounds of the original markdown string 'md'
+							if prevAbsEnd >= 0 && absStart <= len(md) {
+								separator := md[prevAbsEnd:absStart] // Capture original separator
+								cur.WriteString(separator)
+								// Optional: Add separator tokens if significant: curTokens += countTok(separator)
+							} else {
+								cur.WriteString(" ") // Fallback separator
+							}
 						} else if prevAbsEnd != -1 && absStart == prevAbsEnd { // Sentences abut, add default space
-							log.Printf("    Sentences abut (absStart == prevAbsEnd == %d). Adding default space.", absStart)
 							cur.WriteString(" ")
 						} else if prevAbsEnd != -1 && absStart < prevAbsEnd { // Should not happen
-                            // This might indicate overlapping sentences or index issues, log warning
-                            log.Printf("Warning: absStart (%d) < prevAbsEnd (%d). Skipping separator, potential overlap.", absStart, prevAbsEnd)
-                            // Don't add a separator in this unusual case. Consider adding a space if desired.
+							// This might indicate overlapping sentences or index issues, log warning
+							// Don't add a separator in this unusual case. Consider adding a space if desired.
 						} else {
 							// If prevAbsEnd is -1 (start of buffer) or cur.Len() == 0, no separator needed yet.
 						}
@@ -268,20 +247,19 @@ func SplitMarkdown(md string, chunkTok, overlapTok int) ([]Chunk, error) {
 			// No 'else' needed for entering=false for ast.Text usually
 			return ast.WalkContinue, nil
 		case *ast.Paragraph:
-            if !entering && cur.Len() > 0 {
-                 // If we are exiting a paragraph and have content buffered,
-                 // check if the next node might need a separator that isn't naturally captured.
-                 // This is heuristic. A simple approach is to add a space if the buffer
-                 // doesn't end with one, preparing for potentially joining with the next block.
-                 // However, relying on capturing separators between text nodes is safer.
-                 // Let's rely on the text node logic for now.
-                 // log.Printf("Exiting Paragraph. Buffer content: '%s'", cur.String())
-            }
-             return ast.WalkContinue, nil
-         case *ast.Document:
-              // Nothing specific needed for Document node itself usually
-              return ast.WalkContinue, nil
-          // Add other cases as needed (e.g., lists, blockquotes) if they affect chunking logic
+			if !entering && cur.Len() > 0 {
+				// If we are exiting a paragraph and have content buffered,
+				// check if the next node might need a separator that isn't naturally captured.
+				// This is heuristic. A simple approach is to add a space if the buffer
+				// doesn't end with one, preparing for potentially joining with the next block.
+				// However, relying on capturing separators between text nodes is safer.
+				// Let's rely on the text node logic for now.
+			}
+			return ast.WalkContinue, nil
+		case *ast.Document:
+			// Nothing specific needed for Document node itself usually
+			return ast.WalkContinue, nil
+			// Add other cases as needed (e.g., lists, blockquotes) if they affect chunking logic
 		}
 		return ast.WalkContinue, nil // Default action
 	}); err != nil {
@@ -301,7 +279,6 @@ func splitSentences(s string) []string {
 	morphs := jaTokenizer.Wakati(s)
 	for _, surface := range morphs {
 		if _, err := buf.WriteString(surface); err != nil {
-			log.Printf("Warning: failed to write string to buffer in splitSentences: %v", err)
 			continue
 		}
 

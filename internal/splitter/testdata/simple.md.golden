@@ -1,0 +1,41 @@
+[
+  {
+    "Text": "This is the first paragraph.",
+    "StartIdx": 12,
+    "EndIdx": 40,
+    "Type": "text",
+    "Headings": [
+      "Header 1"
+    ]
+  },
+  {
+    "Text": "List item 1\n- List item 2",
+    "StartIdx": 57,
+    "EndIdx": 82,
+    "Type": "text",
+    "Headings": [
+      "Header 1",
+      "Header 2"
+    ]
+  },
+  {
+    "Text": "```go\nfunc main() {\n\tfmt.Println(\"Hello\")\n}\n```",
+    "StartIdx": 90,
+    "EndIdx": 128,
+    "Type": "code",
+    "Headings": [
+      "Header 1",
+      "Header 2"
+    ]
+  },
+  {
+    "Text": "Another paragraph.",
+    "StartIdx": 133,
+    "EndIdx": 151,
+    "Type": "text",
+    "Headings": [
+      "Header 1",
+      "Header 2"
+    ]
+  }
+]

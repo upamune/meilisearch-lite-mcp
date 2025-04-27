@@ -1,9 +1,20 @@
 package splitter
 
 import (
+	"bytes"
+	"encoding/json"
+	"flag"
+	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+var update = flag.Bool("update", false, "update golden files")
 
 func TestSplitMarkdown(t *testing.T) {
 	t.Parallel()
@@ -143,6 +154,59 @@ This is the first paragraph under Header 1.`,
 				// Add more detailed diff logging if needed
 				t.Logf("Got: %#v", gotChunks)
 				t.Logf("Want: %#v", tt.wantChunks)
+			}
+		})
+	}
+}
+
+func TestMarkdownSplitter_Split_Golden(t *testing.T) {
+	// Find all .md files in testdata
+	testFiles, err := filepath.Glob(filepath.Join("testdata", "*.md"))
+	require.NoError(t, err)
+	require.NotEmpty(t, testFiles, "No test files found in testdata/*.md")
+
+	// Define chunk options for the test
+	const chunkSize = 100
+	const chunkOverlap = 10
+
+	for _, testFile := range testFiles {
+		testFile := testFile // Capture range variable
+		testName := strings.TrimSuffix(filepath.Base(testFile), filepath.Ext(testFile))
+
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+
+			inputBytes, err := os.ReadFile(testFile)
+			require.NoError(t, err)
+
+			// Use the standalone SplitMarkdown function
+			chunks, err := SplitMarkdown(string(inputBytes), chunkSize, chunkOverlap)
+			require.NoError(t, err)
+
+			// Use JSON for golden file format for better readability and structure
+			var prettyJSON bytes.Buffer
+			encoder := json.NewEncoder(&prettyJSON)
+			encoder.SetIndent("", "  ")
+			err = encoder.Encode(chunks)
+			require.NoError(t, err)
+
+			actualOutput := prettyJSON.Bytes()
+
+			goldenFilePath := testFile + ".golden"
+
+			if *update {
+				t.Logf("Updating golden file: %s", goldenFilePath)
+				err = os.WriteFile(goldenFilePath, actualOutput, 0644)
+				require.NoError(t, err)
+			} else {
+				expectedOutput, err := os.ReadFile(goldenFilePath)
+				if os.IsNotExist(err) {
+					t.Fatalf("Golden file not found: %s. Run with -update flag to create it.", goldenFilePath)
+				} else {
+					require.NoError(t, err)
+				}
+
+				assert.Equal(t, string(expectedOutput), string(actualOutput), "Output does not match golden file")
 			}
 		})
 	}

@@ -1,0 +1,217 @@
+[
+  {
+    "Text": "このプロジェクトは、Meilisearch と Multi-Cloud Provider (MCP) フレームワークを組み合わせたハイブリッド検索ソリューションの実装を目指します。",
+    "StartIdx": 63,
+    "EndIdx": 253,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト"
+    ]
+  },
+  {
+    "Text": "検索機能は、現代のアプリケーションにおいて不可欠な要素です。 ユーザーは高速かつ関連性の高い検索結果を期待しています。",
+    "StartIdx": 266,
+    "EndIdx": 441,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要"
+    ]
+  },
+  {
+    "Text": "Meilisearch は、そのスピードと使いやすさで知られるオープンソースの検索エンジンです。",
+    "StartIdx": 440,
+    "EndIdx": 560,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要"
+    ]
+  },
+  {
+    "Text": "一方、MCP は、複数のクラウドサービスやローカルリソースを抽象化し、統一されたインターフェースを提供するためのフレームワーク（このプロジェクトで開発中）です。",
+    "StartIdx": 560,
+    "EndIdx": 792,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要"
+    ]
+  },
+  {
+    "Text": "このプロジェクトでは、Markdown ファイルなどのドキュメントを効率的にインデックス化し、Meilisearch を利用してキーワード検索とセマンティック検索（ベクトル検索）を組み合わせたハイブリッド検索を実現します。",
+    "StartIdx": 794,
+    "EndIdx": 1085,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要"
+    ]
+  },
+  {
+    "Text": "Markdown ファイルの分割**: ドキュメントを意味のあるチャンクに分割します。\n- **インデックス作成**: 分割されたチャンクを Meilisearch にインデックスします。\n- **ハイブリッド検索 API",
+    "StartIdx": 1109,
+    "EndIdx": 1354,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要",
+      "主な機能"
+    ]
+  },
+  {
+    "Text": ": キーワード検索とベクトル検索の結果を統合して返します。",
+    "StartIdx": 1356,
+    "EndIdx": 1439,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "概要",
+      "主な機能"
+    ]
+  },
+  {
+    "Text": "Go**: バックエンド処理と MCP サーバーの実装に使用します。\n- **Meilisearch**: 高速な検索エンジンとして利用します。\n- **tiktoken**: テキストのトークン化に使用します。\n- **goldmark**: Markdown のパースに使用します。\n- **kagome",
+    "StartIdx": 1468,
+    "EndIdx": 1760,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "技術スタック"
+    ]
+  },
+  {
+    "Text": ": 日本語の形態素解析と文分割に使用します。",
+    "StartIdx": 1762,
+    "EndIdx": 1824,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "技術スタック"
+    ]
+  },
+  {
+    "Text": "以下は、Go 言語で簡単な HTTP サーバーを起動する例です。",
+    "StartIdx": 1849,
+    "EndIdx": 1927,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "技術スタック",
+      "コード例 (Go)"
+    ]
+  },
+  {
+    "Text": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc handler(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintf(w, \"こんにちは、%s！\", r.URL.Path[1:])\n}\n\nfunc main() {\n\thttp.HandleFunc(\"/\", handler)\n\tlog.Println(\"サーバーをポート 8080 で起動します...\")\n\tlog.Fatal(http.ListenAndServe(\":8080\", nil))\n}\n```",
+    "StartIdx": 1935,
+    "EndIdx": 2265,
+    "Type": "code",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "技術スタック",
+      "コード例 (Go)"
+    ]
+  },
+  {
+    "Text": "ドキュメントを適切にチャンク化することは、特にベクトル検索において重要です。 大きすぎるチャンクは情報の密度を薄め、小さすぎるチャンクは文脈を失わせる可能性があります。\n\nこの `splitter",
+    "StartIdx": 2311,
+    "EndIdx": 2579,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化"
+    ]
+  },
+  {
+    "Text": "パッケージでは、以下の戦略を採用しています。\n\n1.  **構造に基づいた分割**: Markdown の見出し構造 (`#`, `##` など) を利用して、大きなセクションを区切ります。\n2.  **コードブロックの分離",
+    "StartIdx": 2580,
+    "EndIdx": 2832,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化"
+    ]
+  },
+  {
+    "Text": ": コードブロックは独立したチャンクとして扱います。 これは、自然言語とコードでベクトル表現が異なるためです。\n3.  **文単位の分割**: テキスト部分は、文（特に日本語の場合は句点「。 」や感嘆符「！",
+    "StartIdx": 2834,
+    "EndIdx": 3113,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化"
+    ]
+  },
+  {
+    "Text": "」など）で分割します。\n4.  **トークン数に基づく結合と再分割**: 文単位で分割した後、指定された最大トークン数 (`chunkSize`) を超えないように、複数の文を結合します。",
+    "StartIdx": 3111,
+    "EndIdx": 3341,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化"
+    ]
+  },
+  {
+    "Text": "長すぎる文はさらに分割される可能性がありますが、現在の実装では主に結合が中心です。 オーバーラップ (`chunkOverlap`) も考慮されますが、実装詳細は進行中です。",
+    "StartIdx": 3341,
+    "EndIdx": 3564,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化"
+    ]
+  },
+  {
+    "Text": "これは、Python でリスト内の数値を合計する簡単な関数です。",
+    "StartIdx": 3592,
+    "EndIdx": 3674,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化",
+      "コード例 (Python)"
+    ]
+  },
+  {
+    "Text": "```python\ndef sum_list(numbers):\n  \"\"\"リスト内の数値の合計を計算する関数\"\"\"\n  total = 0\n  for number in numbers:\n    # Check if the item is a number (int or float)\n    if isinstance(number, (int, float)):\n      total += number\n    else:\n      print(f\"警告: リスト内の非数値要素は無視されました: {number}\")\n  return total\n\n# Example usage\nmy_list = [1, 2, 3, 'a', 4.5, 5]\nresult = sum_list(my_list)\nprint(f\"リストの合計: {result}\")\n```",
+    "StartIdx": 3686,
+    "EndIdx": 4150,
+    "Type": "code",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "ドキュメントのチャンク化",
+      "コード例 (Python)"
+    ]
+  },
+  {
+    "Text": "ベクトル生成**: チャンク化されたテキストからベクトル埋め込みを生成する機能。\n- **Meilisearch インテグレーション**: Meilisearch Go クライアントを使用したインデックス作成と検索の実装。\n- **API 設計",
+    "StartIdx": 4179,
+    "EndIdx": 4447,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "今後の課題"
+    ]
+  },
+  {
+    "Text": ": MCP サーバーの API エンドポイントの設計と実装。\n- **テストの拡充**: より多くのエッジケースをカバーするテストケースの追加。\n\nこのドキュメント自体も、開発中の `splitter",
+    "StartIdx": 4449,
+    "EndIdx": 4685,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "今後の課題"
+    ]
+  },
+  {
+    "Text": "によってチャンク化され、検索対象となる予定です。 継続的な改善にご期待ください。",
+    "StartIdx": 4687,
+    "EndIdx": 4805,
+    "Type": "text",
+    "Headings": [
+      "Meilisearch ハイブリッド検索 MCP プロジェクト",
+      "今後の課題"
+    ]
+  }
+]
