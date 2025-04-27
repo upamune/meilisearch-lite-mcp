@@ -56,6 +56,9 @@ type RunParam struct {
 	PathPrefix    string
 }
 
+// Define the function type for dependency injection
+type searchFunc func(ctx context.Context, client meilisearch.ServiceReader, query string, searchRequest *meilisearch.SearchRequest) (*meilisearchutil.SearchResp[meilisearchutil.DocumentResponse], error)
+
 func Run(ctx context.Context, param RunParam) error {
 	client := meilisearchutil.NewClient(param.HttpAddr, param.ApiKey)
 	defer client.Close()
@@ -93,7 +96,7 @@ func Run(ctx context.Context, param RunParam) error {
 		),
 	)
 
-	handler := newSearchDocumentHandler(client.ServiceReader(), param.PathPrefix)
+	handler := newSearchDocumentHandler(client, param.PathPrefix)
 	srv.AddTool(searchDocumentTool, handler)
 
 	if err := server.ServeStdio(srv); err != nil {
@@ -104,12 +107,18 @@ func Run(ctx context.Context, param RunParam) error {
 }
 
 func newSearchDocumentHandler(client meilisearch.ServiceReader, pathPrefix string) server.ToolHandlerFunc {
+	// The actual search function to use in production
+	actualSearch := func(ctx context.Context, passedClient meilisearch.ServiceReader, query string, searchRequest *meilisearch.SearchRequest) (*meilisearchutil.SearchResp[meilisearchutil.DocumentResponse], error) {
+		// Use the client captured by the closure
+		return meilisearchutil.SearchDocument(ctx, client, query, searchRequest)
+	}
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		return searchDocumentHandler(ctx, request, client, pathPrefix)
+		// Pass the search function and necessary context (client is needed by the signature, though mocks might ignore it)
+		return searchDocumentHandler(ctx, request, actualSearch, client, pathPrefix)
 	}
 }
 
-func searchDocumentHandler(ctx context.Context, request mcp.CallToolRequest, client meilisearch.ServiceReader, pathPrefix string) (*mcp.CallToolResult, error) {
+func searchDocumentHandler(ctx context.Context, request mcp.CallToolRequest, searcher searchFunc, client meilisearch.ServiceReader, pathPrefix string) (*mcp.CallToolResult, error) {
 	query, ok := request.Params.Arguments[queryParamName].(string)
 	if !ok {
 		return nil, fmt.Errorf("expected string for query, got %T", request.Params.Arguments[queryParamName])
@@ -131,9 +140,8 @@ func searchDocumentHandler(ctx context.Context, request mcp.CallToolRequest, cli
 		},
 	}
 
-	searchResponse, err := meilisearchutil.SearchDocument(
-		ctx, client, query, searchRequest,
-	)
+	// Use the injected searcher function
+	searchResponse, err := searcher(ctx, client, query, searchRequest) // Pass client for signature, though mocks might ignore it
 	if err != nil {
 		return &mcp.CallToolResult{
 			IsError: true,
